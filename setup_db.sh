@@ -8,7 +8,7 @@
 # ./setup_db.sh
 
 # Outcome: 
-# CRO will create three redis and one posgres and secrets pointing to these db will be created in the 3scale-test ns
+# CRO will create three redis and one postgres and secrets pointing to these db will be created in the 3scale-test ns
 
 
 # Function to check if redis CR is available
@@ -90,9 +90,9 @@ done
                                                       
 # Kill the operator process
 pkill -f "main.go"
-# delete the cloud-resources-operator dir
+# delete the cloud-resource-operator dir
 cd ..
-rm -rf cloud-resources-operator
+rm -rf cloud-resource-operator
 
 
 # create the 3scale namespace
@@ -119,6 +119,3 @@ oc create secret generic system-database \
     --from-literal=DB_USER="$USERNAME" \
     --from-literal=URL=postgresql://"$USERNAME":"$PASSWORD"@"$HOST":"$PORT"/"$DATABASE" \
     --namespace=3scale-test
-
-
-
