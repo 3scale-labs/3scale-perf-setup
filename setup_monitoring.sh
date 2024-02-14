@@ -97,6 +97,7 @@ DOMAIN=$(oc get routes console -n openshift-console -o json | jq -r '.status.ing
 EXTERNALURL=https://prometheus.3scale-test.$DOMAIN
 sed -i "s|externalUrl:.*|externalUrl: $EXTERNALURL|" prometheus.yaml
 oc apply -f prometheus.yaml
+oc wait --for=condition=available prometheus/example --timeout=-1s
 oc expose service prometheus-operated --hostname prometheus.3scale-test.$DOMAIN
 # Grafana CR's
 oc apply -f datasource.yaml

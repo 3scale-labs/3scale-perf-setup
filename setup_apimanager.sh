@@ -114,6 +114,6 @@ spec:
           name: s3-credentials
   wildcardDomain: $DOMAIN
 EOF
-# Check the install has completed for five minuits
-echo Check the install has completed for five minuits
+# Check the install has completed for five minutes
+echo Check the install has completed for five minutes
 oc wait --for=condition=available apimanager/apimanager-sample --timeout=300s
