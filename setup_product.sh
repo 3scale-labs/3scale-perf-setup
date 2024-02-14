@@ -13,7 +13,7 @@ metadata:
   name: mytenant
 type: Opaque
 stringData:
-  adminURL: 3scale-admin.$DOMAIN
+  adminURL: https://3scale-admin.$DOMAIN
   token: $ADMIN_ACCESS_TOKEN
 EOF
 # user secret
@@ -55,7 +55,7 @@ metadata:
   name: developeraccount01
   namespace: 3scale-test
 spec:
-  orgName: pstefans3
+  orgName: 3scale-test
   providerAccountRef:
     name: mytenant
 EOF
@@ -81,6 +81,10 @@ spec:
       last: true
       metricMethodRef: hits
       pattern: /
+    - httpMethod: POST
+      pattern : "/"
+      metricMethodRef: hits
+      increment: 1    
   name: backend1
   privateBaseURL: 'http://httpbin.httpbin.svc:8080'
   systemName: backend1
@@ -100,15 +104,7 @@ spec:
       limits:
         - period: month
           value: 300
-          metricMethodRef:
-            systemName: hits
-            backend: backend1
-    plan02:
-      name: "My Plan 02"
-      limits:
-        - period: month
-          value: 300
-          metricMethodRef:
+          metricMethodRef: 
             systemName: hits
             backend: backend1
   name: product1
@@ -118,15 +114,11 @@ spec:
   mappingRules:
     - httpMethod: GET
       pattern : "/"
-      metricMethodRef:
-        systemName: hits
-        backend: backend1
+      metricMethodRef: hits
       increment: 1
     - httpMethod: POST
       pattern : "/"
-      metricMethodRef:
-        systemName: hits
-        backend: backend1
+      metricMethodRef: hits
       increment: 1    
 EOF
 # application
@@ -135,7 +127,7 @@ oc apply -f - <<EOF
 apiVersion: capabilities.3scale.net/v1beta1
 kind: Application
 metadata:
-  name: example
+  name: application-cr
   namespace: 3scale-test
 spec:
   accountCR: 
