@@ -82,6 +82,8 @@ spec:
   sourceNamespace: openshift-marketplace
   startingCSV: dev-image-3scale-operator.0.0.1
 EOF
+# wait for CRD to be deployed
+sleep 30
 # create dummy S3 secret
 oc apply -f - <<EOF
 ---

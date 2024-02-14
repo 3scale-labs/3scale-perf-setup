@@ -58,7 +58,7 @@ spec:
   startingCSV: grafana-operator.v4.10.1
 EOF
 # patch apimanager CR monitoring enabled true
-sleep 30
+sleep 60
 oc patch apimanager apimanager-sample --type='json' -p='[{"op": "add", "path": "/spec/monitoring", "value": {"enabled": true}}]'
 # Get the SECRET name that contains the THANOS_QUERIER_BEARER_TOKEN
 SECRET=`oc get secret -n openshift-user-workload-monitoring | grep  prometheus-user-workload-token | head -n 1 | awk '{print $1 }'`
@@ -97,7 +97,7 @@ DOMAIN=$(oc get routes console -n openshift-console -o json | jq -r '.status.ing
 EXTERNALURL=https://prometheus.3scale-test.$DOMAIN
 sed -i "s|externalUrl:.*|externalUrl: $EXTERNALURL|" prometheus.yaml
 oc apply -f prometheus.yaml
-oc wait --for=condition=available prometheus/example --timeout=-1s
+sleep 5
 oc expose service prometheus-operated --hostname prometheus.3scale-test.$DOMAIN
 # Grafana CR's
 oc apply -f datasource.yaml
