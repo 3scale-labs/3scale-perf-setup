@@ -152,3 +152,9 @@ spec:
   production: true
   deleteCR: true
 EOF
+
+echo Product Route: 
+echo "https://$(oc get routes | grep product1 |grep production| awk '{print $2}')" 
+echo
+echo User_key: 
+echo $(curl -s -X 'GET' "https://3scale-admin.$DOMAIN/admin/api/applications.xml?access_token=$ADMIN_ACCESS_TOKEN&page=1&per_page=500&service_id=3" -H 'accept: */*' | grep -oP '<user_key>\K[^<]+' | sed 's/\s//g')
