@@ -101,12 +101,6 @@ spec:
   applicationPlans:
     plan01:
       name: "My Plan 01"
-      limits:
-        - period: month
-          value: 300
-          metricMethodRef: 
-            systemName: hits
-            backend: backend1
   name: product1
   backendUsages:
     backend1:
