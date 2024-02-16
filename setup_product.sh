@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Get the ADMIN_URL and ADMIN_ACCESS_TOKEN from apimanger and system-seed secret
+# Get the ADMIN_URL and ADMIN_ACCESS_TOKEN from apimanager and system-seed secret
 DOMAIN=$(oc get routes console -n openshift-console -o json | jq -r '.status.ingress[0].routerCanonicalHostname' | sed 's/router-default.//')
 ADMIN_ACCESS_TOKEN=$(oc get secret system-seed -n 3scale-test -o jsonpath="{.data.ADMIN_ACCESS_TOKEN}"| base64 --decode)
 oc project 3scale-test
@@ -153,6 +153,7 @@ spec:
   deleteCR: true
 EOF
 
+sleep 30
 echo Product Route: 
 echo "https://$(oc get routes | grep product1 |grep production| awk '{print $2}')" 
 echo
