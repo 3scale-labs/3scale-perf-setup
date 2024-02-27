@@ -105,7 +105,7 @@ oc create secret generic system-redis \
     --namespace=3scale-test
 oc create secret generic backend-redis \
     --from-literal=REDIS_QUEUES_URL=redis://redis-queue.cloud-resource-operator.svc.cluster.local:6379 \
-    --from-literal=REDIS_STORAGE_URL=redis://redis-queue.cloud-resource-operator.svc.cluster.local:6379 \
+    --from-literal=REDIS_STORAGE_URL=redis://redis-storage.cloud-resource-operator.svc.cluster.local:6379 \
     --namespace=3scale-test
 
 PASSWORD=$(oc get secret example-postgres-sec -n cloud-resource-operator -o jsonpath="{.data.password}" | base64 -d)
