@@ -114,6 +114,14 @@ spec:
       simpleStorageService:
         configurationSecretRef:
           name: s3-credentials
+  apicast: 
+    productionSpec:
+      hpa: true
+  backend:
+    listenerSpec:
+      hpa: true
+    workerSpec:
+      hpa: true
   wildcardDomain: $DOMAIN
 EOF
 # Check the install has completed for five minutes
