@@ -107,6 +107,12 @@ kind: APIManager
 metadata:
   name: apimanager-sample
 spec:
+  externalComponents:
+    system:
+      redis: true
+      database: true
+    backend: 
+      redis: true
   system:
     database:
         postgresql: {}
