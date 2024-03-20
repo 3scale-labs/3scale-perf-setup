@@ -107,6 +107,12 @@ kind: APIManager
 metadata:
   name: apimanager-sample
 spec:
+  externalComponents:
+    system:
+      redis: true
+      database: true
+    backend: 
+      redis: true
   system:
     database:
         postgresql: {}
@@ -114,6 +120,14 @@ spec:
       simpleStorageService:
         configurationSecretRef:
           name: s3-credentials
+  apicast: 
+    productionSpec:
+      hpa: true
+  backend:
+    listenerSpec:
+      hpa: true
+    workerSpec:
+      hpa: true
   wildcardDomain: $DOMAIN
 EOF
 # Check the install has completed for five minutes
