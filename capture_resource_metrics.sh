@@ -62,7 +62,7 @@ LOAD_QUERIES=(\
 )
 
 _runQueryROO() {
-   oc exec -n 3scale-test prometheus-example-0 -- wget -qO- --header='Accept: application/json' --header="Authorization: Bearer $TOKEN" --post-data="query=$1&time=$2" --no-check-certificate $3 | jq -r ".data.result[0].value[1]" 
+   oc exec -n 3scale-test prometheus-example-0 -- curl -s -X POST -H "Accept: application/json" -H "Authorization: Bearer $TOKEN" -d "query=$1&time=$2" $3 -k | jq -r ".data.result[0].value[1]"
    curl -s -X POST \
     -H "Accept: application/json" \
     -H "Authorization: Bearer $TOKEN" \
