@@ -51,16 +51,70 @@ check_postgres_complete() {
     fi
 }
 
-
 git clone git@github.com:integr8ly/cloud-resource-operator.git
 cd cloud-resource-operator
 make cluster/prepare
+
+# install the cro index
+oc apply -f - <<EOF
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: cro-operators
+  namespace: openshift-marketplace
+spec:
+  sourceType: grpc
+  image: quay.io/integreatly/cloud-resource-operator:index-v1.1.3
+EOF
+
+# Check the catalog source is ready
+check_catalogsource_available() {
+    local STATE=$(oc get catalogsource cri-operators -n openshift-marketplace -o jsonpath="{.status.connectionState.lastObservedState}")
+    if [[ "$STATE" == *"READY"* ]]; then
+        return 0  # CatalogSource is available
+    else
+        return 1  # CatalogSource is not available
+    fi
+}
+
+# Create operator group
+oc apply -f - <<EOF
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: cloud-resource-og
+  namespace: cloud-resource-operator
+spec:
+  targetNamespaces:
+    - cloud-resource-operator
+  upgradeStrategy: Default
+EOF
+
+# Subscription for CRO
+oc apply -f - <<EOF
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: rhmi-cloud-resources
+  namespace: cloud-resource-operator
+spec:
+  channel: rhmi
+  installPlanApproval: Automatic
+  name: rhmi-cloud-resources
+  source: cro-operators
+  sourceNamespace: openshift-marketplace
+  startingCSV: cloud-resources.v1.1.3
+EOF
+
+# wait for CRD to be deployed
+sleep 30
+
 REDIS_NAME=redis-storage make cluster/seed/redis
 REDIS_NAME=redis-queue make cluster/seed/redis
 REDIS_NAME=redis-system make cluster/seed/redis
 make cluster/seed/postgres
-
-RECTIME=30 WATCH_NAMESPACE=cloud-resource-operator go run ./main.go &>/dev/null &
 
 # Check postgres is completed
 while true; do
