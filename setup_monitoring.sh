@@ -9,6 +9,31 @@
 git clone git@github.com:3scale/3scale-operator.git
 cd 3scale-operator/doc/monitoring-stack-deployment
 oc project 3scale-test
+oc get og -n 3scale-test
+# Create operator group if it doesn't exist
+
+existing_operatorgroups=$(oc get og -n 3scale-test -o jsonpath='{.items[*].metadata.name}')
+
+if [ -n "$existing_operatorgroups" ]; then
+    echo "OperatorGroup(s) exist(s) in namespace 3scale-test: $existing_operatorgroups"
+else
+    echo "No OperatorGroup found in namespace 3scale-test. Creating a new one..."
+
+    # Create the OperatorGroup
+    oc apply -f - <<EOF
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: monitoring
+  namespace: 3scale-test
+spec:
+  targetNamespaces:
+    - 3scale-test
+  upgradeStrategy: Default
+EOF
+fi
+
 # Create a subscription for prometheus operator
 oc apply -f - <<EOF
 ---
