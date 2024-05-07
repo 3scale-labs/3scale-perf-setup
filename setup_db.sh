@@ -34,7 +34,7 @@ check_redis_complete() {
 # Function to check if postgres CR is available
 check_postgres_available() {
     local message=$(oc get postgres example-postgres -o jsonpath="{.status.message}")
-    if [[ "$message" == *"creation successful"* ]]; then
+    if [[ "$message" == *"successful"* ]]; then
         return 0  # Postgres CR is available
     else
         return 1  # Postgres CR is not available
