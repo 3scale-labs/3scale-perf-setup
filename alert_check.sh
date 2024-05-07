@@ -20,12 +20,6 @@ do
     sleep 60
 done
 
-# Define an array of monitoring data sources
-declare -A monitoring_sources=(
-  ["threescale"]="{}"
-)
-
-
 # Define an array of alert states to report on
 declare -a alert_states=("pending" "firing")
 
@@ -36,7 +30,6 @@ trap 'find . -name "tmp-*" -delete; for source_name in "${!monitoring_sources[@]
 function CHECK_NO_ALERTS() {
 
   THREESCALE_MONITORING=$(oc exec -n "3scale-test" "prometheus-example-0" -- curl -sS -H "Accept: application/json" -H "Authorization: Bearer $TOKEN" -k "$ROUTE")
-  monitoring_sources["threescale"]=$THREESCALE_MONITORING
 
   # Extract firing alerts from THREESCALE monitoring
   threescale_alerts=$(echo "$THREESCALE_MONITORING" | jq -r '.data.alerts[] | select(.state == "firing") | [.labels.alertname, .state, .activeAt, .labels.severity] | @csv')
@@ -67,21 +60,16 @@ if [[ "$2" == "" ]]; then
   while :; do
 
     CHECK_NO_ALERTS
+    # Loop over each alert state to report on
+    for alert_state in "${alert_states[@]}"; do
+      # Generate a report for the current alert state and monitoring source
+      echo "$source_data" |
+        jq -r --arg state "$alert_state" '.data.alerts[] | select(.state==$state) | [.labels.alertname, .state, .activeAt, .labels.severity] | @csv' >> "threescale-alert-${alert_state}-${REPORT_TIME}-report.csv"
 
-    # Loop over each monitoring source
-    for source_name in "${!monitoring_sources[@]}"; do
-      source_data="${monitoring_sources[$source_name]}"
-
-      # Loop over each alert state to report on
-      for alert_state in "${alert_states[@]}"; do
-        # Generate a report for the current alert state and monitoring source
-        echo "$source_data" |
-          jq -r --arg state "$alert_state" '.data.alerts[] | select(.state==$state) | [.labels.alertname, .state, .activeAt, .labels.severity] | @csv' >> "${source_name}-alert-${alert_state}-${REPORT_TIME}-report.csv"
-
-        # Sort the report to remove duplicates
-        sort -t',' -k 1,1 -u "${source_name}-alert-${alert_state}-${REPORT_TIME}-report.csv" -o "${source_name}-alert-${alert_state}-${REPORT_TIME}-report.csv"
-      done
+      # Sort the report to remove duplicates
+      sort -t',' -k 1,1 -u "threescale-alert-${alert_state}-${REPORT_TIME}-report.csv" -o "threescale-alert-${alert_state}-${REPORT_TIME}-report.csv"
     done
+
 
     echo -e "\n=================== Sleeping for $SLEEP_TIME seconds ======================\n"
     sleep $SLEEP_TIME
