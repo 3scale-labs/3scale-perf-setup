@@ -14,7 +14,7 @@
 # Function to check if redis CR is available
 check_redis_available() {
     local message=$(oc get redis "$1" -o jsonpath="{.status.message}")
-    if [[ "$message" == *"redis deployment available"* ]]; then
+    if [[ "$message" == *"successful"* ]]; then
         return 0  # Redis CR is available
     else
         return 1  # Redis CR is not available
@@ -154,12 +154,19 @@ oc new-project 3scale-test
 
 # Creating secrets in the 3scale-test namespace
 echo Creating secrets in the 3scale-test namespace
+REDIS_QUEUES_URL=$(oc get secret redis-queue-sec -n cloud-resource-operator -o jsonpath="{.data.uri}" | base64 -d)
+REDIS_QUEUES_PORT=$(oc get secret redis-queue-sec -n cloud-resource-operator -o jsonpath="{.data.port}" | base64 -d)
+REDIS_STORAGE_URL=$(oc get secret redis-storage-sec -n cloud-resource-operator -o jsonpath="{.data.uri}" | base64 -d)
+REDIS_STORAGE_PORT=$(oc get secret redis-storage-sec -n cloud-resource-operator -o jsonpath="{.data.port}" | base64 -d)
+REDIS_SYSTEM_URL=$(oc get secret redis-system-sec -n cloud-resource-operator -o jsonpath="{.data.uri}" | base64 -d)
+REDIS_SYSTEM_PORT=$(oc get secret redis-system-sec -n cloud-resource-operator -o jsonpath="{.data.port}" | base64 -d)
+
 oc create secret generic system-redis \
-    --from-literal=URL=redis://redis-system.cloud-resource-operator.svc.cluster.local:6379 \
+    --from-literal=URL=redis://"$REDIS_SYSTEM_URL":"$REDIS_SYSTEM_PORT" \
     --namespace=3scale-test
 oc create secret generic backend-redis \
-    --from-literal=REDIS_QUEUES_URL=redis://redis-queue.cloud-resource-operator.svc.cluster.local:6379 \
-    --from-literal=REDIS_STORAGE_URL=redis://redis-storage.cloud-resource-operator.svc.cluster.local:6379 \
+    --from-literal=REDIS_QUEUES_URL=redis://"$REDIS_QUEUES_URL":"$REDIS_QUEUES_PORT" \
+    --from-literal=REDIS_STORAGE_URL=redis://"$REDIS_STORAGE_URL":"$REDIS_STORAGE_PORT" \
     --namespace=3scale-test
 
 PASSWORD=$(oc get secret example-postgres-sec -n cloud-resource-operator -o jsonpath="{.data.password}" | base64 -d)
