@@ -91,8 +91,8 @@ Tue 07 May 2024 14:46:23 IST
 ```
 While running it will generate and update two files which will capture any alerts that fire or go pending
 ```bash
-threescale-alert-firing-2024-05-07-14-46-report.csv
-threescale-alert-pending-2024-05-07-14-46-report.csv
+threescale-alert-firing-report.csv
+threescale-alert-pending-report.csv
 ```
 
 

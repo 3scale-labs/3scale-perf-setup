@@ -10,7 +10,6 @@
 # VARIABLES
 
 SLEEP_TIME="${1-5}"
-REPORT_TIME=$(date +"%Y-%m-%d-%H-%M")
 ROUTE="http://localhost:9090/api/v1/alerts"
 TOKEN=$(oc whoami --show-token)
 # wait for monitoring route to appear and have host populated
@@ -63,11 +62,11 @@ if [[ "$2" == "" ]]; then
     # Loop over each alert state to report on
     for alert_state in "${alert_states[@]}"; do
       # Generate a report for the current alert state and monitoring source
-      echo "$source_data" |
-        jq -r --arg state "$alert_state" '.data.alerts[] | select(.state==$state) | [.labels.alertname, .state, .activeAt, .labels.severity] | @csv' >> "threescale-alert-${alert_state}-${REPORT_TIME}-report.csv"
+      echo "$THREESCALE_MONITORING" |
+        jq -r --arg state "$alert_state" '.data.alerts[] | select(.state==$state) | [.labels.alertname, .state, .activeAt, .labels.severity] | @csv' >> "threescale-alert-${alert_state}-report.csv"
 
       # Sort the report to remove duplicates
-      sort -t',' -k 1,1 -u "threescale-alert-${alert_state}-${REPORT_TIME}-report.csv" -o "threescale-alert-${alert_state}-${REPORT_TIME}-report.csv"
+      sort -t',' -k 1,1 -u "threescale-alert-${alert_state}-report.csv" -o "threescale-alert-${alert_state}-report.csv"
     done
 
 
