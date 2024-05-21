@@ -111,9 +111,9 @@ EOF
 # wait for CRD to be deployed
 sleep 30
 
-REDIS_NAME=redis-storage PROVIDER=aws make cluster/seed/redis
-REDIS_NAME=redis-queue PROVIDER=aws make cluster/seed/redis
-REDIS_NAME=redis-system PROVIDER=aws make cluster/seed/redis
+REDIS_NAME=redis-storage make cluster/seed/redis
+REDIS_NAME=redis-queue  make cluster/seed/redis
+REDIS_NAME=redis-system  make cluster/seed/redis
 make cluster/seed/postgres
 
 # Check postgres is completed
