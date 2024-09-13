@@ -40,15 +40,15 @@ oc apply -f - <<EOF
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
 metadata:
-  name: rhods-prometheus-operator
+  name: prometheus
   namespace: 3scale-test
 spec:
   channel: beta
   installPlanApproval: Automatic
-  name: rhods-prometheus-operator
-  source: redhat-operators
+  name: prometheus
+  source: community-operators
   sourceNamespace: openshift-marketplace
-  startingCSV: rhods-prometheus-operator.4.10.0
+  startingCSV: prometheusoperator.0.56.3
 EOF
 # Create a subscription for prometheus-exporter operator
 oc apply -f - <<EOF
@@ -75,12 +75,12 @@ metadata:
   name: grafana-operator
   namespace: 3scale-test
 spec:
-  channel: v4
+  channel: v5
   installPlanApproval: Automatic
   name: grafana-operator
   source: community-operators
   sourceNamespace: openshift-marketplace
-  startingCSV: grafana-operator.v4.10.1
+  startingCSV: grafana-operator.v5.13.0
 EOF
 # patch apimanager CR monitoring enabled true
 sleep 60
@@ -124,9 +124,10 @@ sed -i "s|externalUrl:.*|externalUrl: $EXTERNALURL|" prometheus.yaml
 oc apply -f prometheus.yaml
 sleep 5
 oc expose service prometheus-operated --hostname prometheus.3scale-test.$DOMAIN
+oc expose service example-grafana-service --hostname example-grafana-service.3scale-test.$DOMAIN
 # Grafana CR's
-oc apply -f datasource.yaml
-oc apply -f grafana.yaml
+oc apply -f datasource-v5.yaml
+oc apply -f grafana-v5.yaml
 # remove 3scale-operator dir
 cd ../../../
 rm -rf 3scale-operator
